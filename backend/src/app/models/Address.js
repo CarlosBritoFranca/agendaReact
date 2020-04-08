@@ -7,6 +7,14 @@ module.exports = (sequelize, DataTypes) => {
     neighborhood: DataTypes.STRING,
     city: DataTypes.STRING,
     uf: DataTypes.STRING,
+    type: DataTypes.STRING,
   });
+
+  Address.associate = (models) => {
+    Address.belongsTo(models.Contact, {
+      foreignKey: "contact_id",
+      as: "contact",
+    });
+  };
   return Address;
 };

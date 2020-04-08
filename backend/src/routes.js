@@ -12,6 +12,7 @@ const SessionController = require("./app/controller/SessionController");
 const FileController = require("./app/controller/FileController");
 const ContactController = require("./app/controller/ContactController");
 const PhoneController = require("./app/controller/PhoneControler");
+const AddressController = require("./app/controller/AddressController");
 
 //Rotas da aplicação
 
@@ -35,10 +36,16 @@ routes.put("/contacts/:id", ContactController.update);
 routes.delete("/contacts/:id", ContactController.delete);
 
 //Rotas de Telefones do contato
-routes.get("/contacts/:conctact_id/phones", PhoneController.index);
+routes.get("/contacts/:contact_id/phones", PhoneController.index);
 routes.post("/contacts/:contact_id/phones", PhoneController.store);
 routes.get("/contacts/:contact_id/show/:id", PhoneController.show);
-routes.put("/contacts/contact_id/phones/:id", PhoneController.update);
-routes.delete("/contacts/constact_id/phones/:id", PhoneController.delete);
+routes.put("/contacts/:contact_id/phones/:id", PhoneController.update);
+routes.delete("/contacts/:contact_id/phones/:id", PhoneController.delete);
+
+//Rota de Endereços
+routes.get("/contacts/:contact_id/address", AddressController.index);
+routes.post("/contacts/:contact_id/address", AddressController.store);
+routes.put("/contacts/:contact_id/address/:id", AddressController.update);
+routes.delete("/contacts/:contact_id/address/:id", AddressController.delete);
 
 module.exports = routes;
