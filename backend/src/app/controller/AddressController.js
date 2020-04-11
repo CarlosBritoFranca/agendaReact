@@ -2,17 +2,11 @@ const { Address, Contact } = require("../models");
 
 class AddressController {
   async index(req, res) {
-    const { contact_id } = req.params;
-    const contact = await Contact.findByPk(contact_id, {
-      include: { association: "addresses" },
-    });
-    if (!contact) {
-      return res.status(401).json({ error: "Contato não cadastrado !!!" });
-    }
-    return res.status(200).json(contact.addresses);
+    return res.status(200).json({ ok: true });
   }
   async store(req, res) {
     const { contact_id } = req.params;
+    console.log(contact_id);
     const {
       zipcode,
       street,

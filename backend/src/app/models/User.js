@@ -23,6 +23,12 @@ module.exports = (sequelize, DataTypes) => {
   User.prototype.checkPassword = function (password) {
     return bcrypt.compare(password, this.password_hash);
   };
+  User.associante = (models) => {
+    User.hasMany(models.Contact, {
+      as: "contacts",
+      foreignKey: "user_id",
+    });
+  };
 
   return User;
 };
