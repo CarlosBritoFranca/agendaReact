@@ -1,0 +1,2 @@
+Banco de dados Mongo com docker:
+docker run --name mongoagenda -p 27017:27017 -d -t mongo

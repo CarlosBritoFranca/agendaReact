@@ -8,14 +8,14 @@ class ContactController {
       where: {
         user_id,
       },
-      include: [
-        {
-          association: "contacts",
-        },
-        {
-          association: "addresses",
-        },
-      ],
+      // include: [
+      //   {
+      //     association: "contacts",
+      //   },
+      //   {
+      //     association: "addresses",
+      //   },
+      // ],
     });
 
     return res.status(200).json(data);
@@ -48,7 +48,23 @@ class ContactController {
 
   async show(req, res) {
     const id = req.params.id;
-    const data = await Contact.findOne({ where: { id } });
+
+    const data = await Contact.findOne({
+      where: {
+        id,
+      },
+      include: [
+        {
+          association: "contacts",
+        },
+        {
+          association: "addresses",
+        },
+      ],
+    });
+    if (!data) {
+      return res.status(401).json({ error: "Contato não cadastrado" });
+    }
     return res.status(200).json(data);
   }
 

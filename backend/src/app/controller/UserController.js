@@ -1,6 +1,8 @@
 const Yup = require("yup");
 const { User } = require("../models");
 
+const Mail = require("../../lib/Mail");
+
 class UserController {
   //Listar Usuarios
   async index(req, res) {
@@ -20,7 +22,7 @@ class UserController {
         .status(400)
         .json({ error: "A validação dos dados falhou !!!" });
     }
-    const { email } = req.body; //pega o email do corpo da requisição
+    const { name, email, password } = req.body; //pega o email do corpo da requisição
     //verifica se o email já esta cadastrados
     const userExist = await User.findOne({
       where: {
@@ -31,6 +33,18 @@ class UserController {
       return res.status(400).json({ error: "E-mail já cadastrado !!!" });
     }
     const user = await User.create(req.body);
+
+    await Mail.sendMail({
+      to: `${name} <${email}>`,
+      subject: "Agenda criada",
+      template: "create",
+      context: {
+        name: name,
+        email: email,
+        password: password,
+      },
+    });
+
     return res.status(200).json(user);
   }
   //Mostrar 1 usuario
