@@ -17,6 +17,10 @@ module.exports = (sequelize, DataTypes) => {
       foreignKey: "contact_id",
       as: "addresses",
     });
+    Contact.belongsTo(models.File, {
+      foreignKey: "avatar_id",
+      key: "id",
+    });
   };
   return Contact;
 };

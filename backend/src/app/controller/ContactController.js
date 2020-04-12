@@ -70,9 +70,9 @@ class ContactController {
 
   async update(req, res) {
     //Validação de dados
-    const schema = yup.object().shape({
-      name: yup.string(),
-      main_mail: yup.string().email(),
+    const schema = Yup.object().shape({
+      name: Yup.string(),
+      main_mail: Yup.string().email(),
     });
     if (!(await schema.isValid(req.body))) {
       return res.status(400).json({ error: "A validação dos dados Falhou!!!" });

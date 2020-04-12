@@ -23,7 +23,11 @@ module.exports = (sequelize, DataTypes) => {
   User.prototype.checkPassword = function (password) {
     return bcrypt.compare(password, this.password_hash);
   };
-  User.associante = (models) => {
+  User.associate = (models) => {
+    User.belongsTo(models.File, {
+      foreignKey: "avatar_id",
+      as: "avatar",
+    });
     User.hasMany(models.Contact, {
       as: "contacts",
       foreignKey: "user_id",

@@ -3,5 +3,6 @@ module.exports = (sequelize, DataTypes) => {
     name: DataTypes.STRING,
     path: DataTypes.STRING,
   });
+
   return File;
 };
