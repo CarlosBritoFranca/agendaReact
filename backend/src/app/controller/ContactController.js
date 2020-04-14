@@ -5,17 +5,8 @@ class ContactController {
   async index(req, res) {
     const user_id = req.userId;
     const data = await Contact.findAll({
-      where: {
-        user_id,
-      },
-      // include: [
-      //   {
-      //     association: "contacts",
-      //   },
-      //   {
-      //     association: "addresses",
-      //   },
-      // ],
+      where: { user_id },
+      order: [["name", "ASC"]],
     });
 
     return res.status(200).json(data);
