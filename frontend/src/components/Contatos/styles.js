@@ -38,3 +38,19 @@ export const Phone = styled.div`
     margin-right: 10px;
   }
 `;
+
+export const Tbody = styled.tbody`
+  .listContact {
+    cursor: pointer;
+  }
+`;
+export const Avatar = styled.img`
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  margin-right: 15px;
+`;
+export const FormCadastro = styled.div`
+  .form-group input {
+  }
+`;

@@ -1,15 +1,15 @@
 import React, { useState } from "react";
+import { Modal, Button } from "react-bootstrap";
 import { Link } from "react-router-dom";
 
-import { Modal } from "react-bootstrap";
 import api from "../../services/api";
 
 import { FormCadastro } from "./styles";
 
 export default function Agenda() {
-  const [ModalAddShow, setModalAddShow] = useState(false);
-  const [main_email, setMain_Email] = useState("");
   const [name, setName] = useState("");
+  const [main_email, setMainEmail] = useState("");
+  const [lgShow, setLgShow] = useState(false);
 
   async function handleAddContact(e) {
     e.preventDefault();
@@ -19,11 +19,16 @@ export default function Agenda() {
     };
     try {
       const response = await api.post("contacts", data);
-
+      setLgShow(false);
       alert(`Contato ${response.data.name} cadastrado com sucesso`);
-      setModalAddShow(false);
+      setName("");
+      setMainEmail("");
     } catch (error) {
-      alert(`Erro ao cadastrar contato`);
+      if (!(name && main_email)) {
+        alert(`Por favor preencher Nome e Email !!`);
+      } else {
+        alert(`Erro ao cadastrar contato`);
+      }
     }
   }
 
@@ -48,60 +53,65 @@ export default function Agenda() {
         <div className="collapse navbar-collapse" id="navbarSupportedContent">
           <ul className="navbar-nav mr-auto">
             <li className="nav-item active"></li>
-            <li className="nav-item" onClick={() => setModalAddShow(true)}>
+            <li className="nav-item" onClick={() => setLgShow(true)}>
               <Link className="nav-link" to="#">
                 Adicionar Contato
               </Link>
             </li>
           </ul>
-          <div className="form-inline my-2 my-lg-0">
-            <input
-              className="form-control mr-sm-2"
-              type="search"
-              placeholder="Procurar"
-              aria-label="Search"
-            />
-          </div>
         </div>
       </nav>
+      <br />
       <Modal
         size="lg"
-        show={ModalAddShow}
-        onHide={() => setModalAddShow(false)}
+        show={lgShow}
+        onHide={() => setLgShow(false)}
         aria-labelledby="example-modal-sizes-title-lg"
       >
         <Modal.Header closeButton>
           <Modal.Title id="example-modal-sizes-title-lg">
-            Novo Contato
+            Criar Contato
           </Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <FormCadastro>
-            <form onSubmit={handleAddContact}>
-              <div className="form-group">
+            <div className="row">
+              <div className="col">
                 <input
                   type="text"
                   className="form-control"
                   placeholder="Nome"
+                  id="name"
+                  required
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  required
                 />
+              </div>
+              <div className="col">
                 <input
                   type="email"
                   className="form-control"
                   placeholder="E-mail"
-                  value={main_email}
-                  onChange={(e) => setMain_Email(e.target.value)}
+                  id="email"
                   required
+                  value={main_email}
+                  onChange={(e) => setMainEmail(e.target.value)}
                 />
-                <button className="btn btn-block btn-primary"> Salvar</button>
               </div>
-            </form>
+            </div>
           </FormCadastro>
         </Modal.Body>
+        <Modal.Footer>
+          <Button
+            variant="primary"
+            type="button"
+            block
+            onClick={handleAddContact}
+          >
+            Salvar
+          </Button>
+        </Modal.Footer>
       </Modal>
-      <br />
     </>
   );
 }

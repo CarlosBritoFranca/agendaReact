@@ -46,7 +46,7 @@ class ContactController {
       },
       include: [
         {
-          association: "contacts",
+          association: "phones",
         },
         {
           association: "addresses",

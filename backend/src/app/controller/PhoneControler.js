@@ -18,11 +18,13 @@ class PhoneController {
       type: yup.string().required(),
       phones: yup.string().required().min(10),
     });
+
     if (!(await schema.isValid(req.body))) {
       return res
         .status(400)
         .json({ error: "A validação dos dados falhou !!!" });
     }
+
     const { contact_id } = req.params;
     const contact = await Contact.findOne({
       where: {
@@ -32,7 +34,15 @@ class PhoneController {
     if (!contact) {
       return res.status(401).json({ error: "Contato não encontrado!!!" });
     }
+
     const { type, phones } = req.body;
+
+    console.log(phones);
+
+    const phonedata = await Phone.findOne({ where: { phones } });
+    if (phonedata) {
+      return res.status(401).json({ error: "Telefone ja esta cadastrado" });
+    }
 
     await Phone.create({
       type,
@@ -46,6 +56,7 @@ class PhoneController {
       contact_id,
     });
   }
+
   async show(req, res) {
     return res.status(200).json({ ok: true });
   }

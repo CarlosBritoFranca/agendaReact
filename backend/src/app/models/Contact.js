@@ -11,7 +11,7 @@ module.exports = (sequelize, DataTypes) => {
     });
     Contact.hasMany(models.Phone, {
       foreignKey: "contact_id",
-      as: "contacts",
+      as: "phones",
     });
     Contact.hasMany(models.Address, {
       foreignKey: "contact_id",

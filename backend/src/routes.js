@@ -45,6 +45,7 @@ routes.delete("/contacts/:contact_id/phones/:id", PhoneController.delete);
 //Rota de Endereços
 routes.get("/contacts/:contact_id/address", AddressController.index);
 routes.post("/contacts/:contact_id/address", AddressController.store);
+routes.get("/contacts/:contact_id/address/:id", AddressController.show);
 routes.put("/contacts/:contact_id/address/:id", AddressController.update);
 routes.delete("/contacts/:contact_id/address/:id", AddressController.delete);
 

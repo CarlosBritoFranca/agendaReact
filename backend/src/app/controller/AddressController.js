@@ -2,7 +2,15 @@ const { Address, Contact } = require("../models");
 
 class AddressController {
   async index(req, res) {
-    return res.status(200).json({ ok: true });
+    const { contact_id } = req.params;
+
+    const address = await Address.findAll({
+      where: {
+        contact_id,
+      },
+    });
+
+    return res.status(200).json(address);
   }
   async store(req, res) {
     const { contact_id } = req.params;
@@ -37,22 +45,42 @@ class AddressController {
     return res.status(200).json(address);
   }
   async show(req, res) {
-    return res.status(200).json({ ok: true });
+    const { contact_id, id } = req.params;
+    const address = await Address.findOne({
+      where: {
+        contact_id,
+        id,
+      },
+    });
+    if (!address) {
+      return res.status(401).json({ error: "Endereço não encontrado" });
+    }
+    return res.status(200).json(address);
   }
   async update(req, res) {
-    const { contact_id } = req.params;
-
-    const contact = await Contact.findByPk(contact_id, {
-      include: { association: "addresses" },
+    const { contact_id, id } = req.params;
+    const address = await Address.findOne({
+      where: {
+        contact_id,
+        id,
+      },
     });
-    if (!contact) {
-      return res.status(401).json({ error: "Contato não cadastrado !!!" });
-    }
 
-    return res.status(200).json({ ok: true });
+    const newAddress = await address.update(req.body);
+
+    return res.status(200).json(newAddress);
   }
   async delete(req, res) {
-    return res.status(200).json({ ok: true });
+    const { contact_id } = req.params;
+    const { id } = req.params;
+    const address = await Address.findOne({
+      where: {
+        contact_id,
+        id,
+      },
+    });
+    await address.destroy();
+    return res.status(200).json({ message: "Edereço excluido com sucesso!!!" });
   }
 }
 
