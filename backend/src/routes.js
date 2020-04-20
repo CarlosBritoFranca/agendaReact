@@ -13,8 +13,10 @@ const FileController = require("./app/controller/FileController");
 const ContactController = require("./app/controller/ContactController");
 const PhoneController = require("./app/controller/PhoneControler");
 const AddressController = require("./app/controller/AddressController");
+const CepController = require("./app/controller/CepAddress");
 
 //Rotas da aplicação
+routes.get("/ceps", CepController.show);
 
 routes.post("/sessions", SessionController.store);
 //Rotas de usuarios

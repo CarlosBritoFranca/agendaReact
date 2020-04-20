@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Modal, Button } from "react-bootstrap";
 import { Link } from "react-router-dom";
+import * as yup from "yup";
 
 import api from "../../services/api";
 
@@ -13,21 +14,31 @@ export default function Agenda() {
 
   async function handleAddContact(e) {
     e.preventDefault();
+    const schema = yup.object().shape({
+      name: yup.string().required().min(5),
+      main_email: yup.string().email().required(),
+    });
+
     const data = {
       name,
       main_email,
     };
-    try {
-      const response = await api.post("contacts", data);
-      setLgShow(false);
-      alert(`Contato ${response.data.name} cadastrado com sucesso`);
-      setName("");
-      setMainEmail("");
-    } catch (error) {
-      if (!(name && main_email)) {
-        alert(`Por favor preencher Nome e Email !!`);
-      } else {
-        alert(`Erro ao cadastrar contato`);
+
+    if (!(await schema.isValid(data))) {
+      alert("Nome e email iformados estão invalidos");
+    } else {
+      try {
+        const response = await api.post("contacts", data);
+        setLgShow(false);
+        alert(`Contato ${response.data.name} cadastrado com sucesso`);
+        setName("");
+        setMainEmail("");
+      } catch (error) {
+        if (!(name && main_email)) {
+          alert(`Por favor preencher Nome e Email !!`);
+        } else {
+          alert(`Erro ao cadastrar contato`);
+        }
       }
     }
   }

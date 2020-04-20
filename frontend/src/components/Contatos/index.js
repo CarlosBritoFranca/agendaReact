@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { Table, Modal, Container, Form, Col, Button } from "react-bootstrap";
 import cep from "cep-promise";
+import * as yup from "yup";
+import { mask, unMask } from "remask";
 import { FaSearch } from "react-icons/fa";
 import { MdPhone, MdCreate, MdDelete, MdAdd, MdList } from "react-icons/md";
 
@@ -58,24 +60,32 @@ export default function Contatos(props) {
   const savePhone = async (e) => {
     const idContact = contato.id;
     e.preventDefault();
+    const schema = yup.object().shape({
+      phones: yup.string().required(),
+      type: yup.string().required(),
+    });
     const data = {
       phones,
       type,
     };
 
-    try {
-      const response = await api.post(`contacts/${idContact}/phones`, data);
-      setPhones(response.data.phones);
-      setType(response.data.type);
-      alert(`Contato ${phones} salvo com sucesso`);
-      setModalPhoneShow(false);
-      setPhones("");
-      setModalContatcDetailsShow(false);
-    } catch (error) {
-      if (!(phones && type)) {
-        alert("Por favor preencha o telefone e o tipo");
-      } else {
-        alert(`Telefone já Cadastrado:`);
+    if (!(await schema.isValid(data))) {
+      alert("Telefone e tipo informados são invalidos");
+    } else {
+      try {
+        const response = await api.post(`contacts/${idContact}/phones`, data);
+        setPhones(response.data.phones);
+        setType(response.data.type);
+        alert(`Contato ${phones} salvo com sucesso`);
+        setModalPhoneShow(false);
+        setPhones("");
+        setModalContatcDetailsShow(false);
+      } catch (error) {
+        if (!(phones && type)) {
+          alert("Por favor preencha o telefone e o tipo");
+        } else {
+          alert(`Telefone já Cadastrado:`);
+        }
       }
     }
   };
@@ -87,21 +97,29 @@ export default function Contatos(props) {
   const handleEditPhonesSave = async (e) => {
     e.preventDefault();
 
+    const schema = yup.object().shape({
+      phones: yup.string(),
+      type: yup.string(),
+    });
+
     const data = {
       phones: phoneEdit,
       type,
     };
+    if (!(await schema.isValid(data))) {
+      alert("Telefone e tipo informados são invalidos");
+    } else {
+      try {
+        await api.put(`contacts/${contato.id}/phones/${phoneSelect}`, data);
 
-    try {
-      await api.put(`contacts/${contato.id}/phones/${phoneSelect}`, data);
-
-      alert("Telefone atualizado!!!");
-      setModalPhoneEdit(false);
-      setModalPhoneShow(false);
-      setModalContatcDetailsShow(false);
-      setPhones("");
-    } catch (error) {
-      alert("Erro ao atualizar telefone");
+        alert("Telefone atualizado!!!");
+        setModalPhoneEdit(false);
+        setModalPhoneShow(false);
+        setModalContatcDetailsShow(false);
+        setPhones("");
+      } catch (error) {
+        alert("Erro ao atualizar telefone");
+      }
     }
   };
 
@@ -132,23 +150,36 @@ export default function Contatos(props) {
 
   const handleCep = async (e) => {
     e.preventDefault();
-    if (!zipcode) {
-      return alert("Preencha o cep");
-    }
-    const response = await cep(zipcode);
-    try {
-      setStreet(response.street);
-      setUf(response.state);
-      setNeighborhood(response.neighborhood);
-      setCity(response.city);
-    } catch (error) {
-      alert("Preencha  o cep");
-    }
+    cep(zipcode)
+      .then((response) => {
+        setStreet(response.street);
+        setUf(response.state);
+        setNeighborhood(response.neighborhood);
+        setCity(response.city);
+      })
+      .catch((error) => {
+        if (!zipcode) {
+          alert("Por favor preencha um cep valido");
+        } else {
+          alert("Cep informado não é valido");
+        }
+      });
   };
 
   const handleAddAddress = async (e) => {
     e.preventDefault();
     const idContact = contato.id;
+
+    const schema = yup.object().shape({
+      zipcode: yup.string().required(),
+      type: yup.string().required(),
+      street: yup.string().required(),
+      number: yup.number().required(),
+      complement: yup.string(),
+      city: yup.string().required(),
+      neighborhood: yup.string().required(),
+    });
+
     const address = {
       zipcode,
       type: typeAddress,
@@ -159,22 +190,25 @@ export default function Contatos(props) {
       city,
       neighborhood,
     };
-
-    try {
-      await api.post(`contacts/${idContact}/address`, address);
-      alert("Endereço Salvo com sucesso");
-      setModalAddressShow(false);
-      setModalContatcDetailsShow(false);
-      setZipcode("");
-      setNumber("");
-      setComplement("");
-      setTypeAddress("");
-      setStreet("");
-      setNeighborhood("");
-      setCity("");
-      setUf("");
-    } catch (error) {
-      alert("Add endereços falhou");
+    if (!(await schema.isValid(address))) {
+      alert("Informações invalidas!!!");
+    } else {
+      try {
+        await api.post(`contacts/${idContact}/address`, address);
+        alert("Endereço Salvo com sucesso");
+        setModalAddressShow(false);
+        setModalContatcDetailsShow(false);
+        setZipcode("");
+        setNumber("");
+        setComplement("");
+        setTypeAddress("");
+        setStreet("");
+        setNeighborhood("");
+        setCity("");
+        setUf("");
+      } catch (error) {
+        alert("Add endereços falhou");
+      }
     }
   };
 
@@ -205,6 +239,16 @@ export default function Contatos(props) {
 
   const handleEditAddress = async (e) => {
     e.preventDefault();
+
+    const schema = yup.object().shape({
+      zipcode: yup.string().required(),
+      type: yup.string().required(),
+      street: yup.string().required(),
+      number: yup.number().required(),
+      complement: yup.string(),
+      city: yup.string().required(),
+      neighborhood: yup.string().required(),
+    });
     const address = {
       zipcode,
       type: typeAddress,
@@ -215,25 +259,28 @@ export default function Contatos(props) {
       city,
       neighborhood,
     };
-
-    try {
-      await api.put(
-        `contacts/${contato.id}/address/${dataAddreesSelected.id}`,
-        address
-      );
-      alert("Endereço atualizado com sucesso!!!");
-      setModalEditAddressShow(false);
-      setModalContatcDetailsShow(false);
-      setZipcode("");
-      setNumber("");
-      setComplement("");
-      setTypeAddress("");
-      setStreet("");
-      setNeighborhood("");
-      setCity("");
-      setUf("");
-    } catch (error) {
-      alert("Erro ao atualizar o endereço");
+    if (!(await schema.isValid(address))) {
+      alert("Informações invalidas!!!");
+    } else {
+      try {
+        await api.put(
+          `contacts/${contato.id}/address/${dataAddreesSelected.id}`,
+          address
+        );
+        alert("Endereço atualizado com sucesso!!!");
+        setModalEditAddressShow(false);
+        setModalContatcDetailsShow(false);
+        setZipcode("");
+        setNumber("");
+        setComplement("");
+        setTypeAddress("");
+        setStreet("");
+        setNeighborhood("");
+        setCity("");
+        setUf("");
+      } catch (error) {
+        alert("Erro ao atualizar o endereço");
+      }
     }
   };
 
@@ -251,18 +298,26 @@ export default function Contatos(props) {
   };
 
   const handleEditContact = async () => {
+    const schema = yup.object().shape({
+      name: yup.string().required().min(5),
+      main_email: yup.string().email().required(),
+    });
     const contact = {
       name,
       main_email,
     };
-    try {
-      await api.put(`contacts/${contato.id}`, contact);
-      alert("Contato Editado com sucesso!!!");
-      setModalEditContact(false);
-      setName("");
-      setMainEmail("");
-    } catch (error) {
-      alert("Erro ao editar o contato");
+    if (!(await schema.isValid(contact))) {
+      alert("Nome e email iformados estão invalidos");
+    } else {
+      try {
+        await api.put(`contacts/${contato.id}`, contact);
+        alert("Contato Editado com sucesso!!!");
+        setModalEditContact(false);
+        setName("");
+        setMainEmail("");
+      } catch (error) {
+        alert("Erro ao editar o contato");
+      }
     }
   };
 
@@ -550,7 +605,9 @@ export default function Contatos(props) {
                         className="form-control"
                         placeholder="CEP"
                         value={zipcode}
-                        onChange={(e) => setZipcode(e.target.value)}
+                        onChange={(e) =>
+                          setZipcode(mask(e.target.value, ["99.999-999"]))
+                        }
                       />
                       <div className="input-group-append">
                         <button
@@ -685,7 +742,14 @@ export default function Contatos(props) {
                   <Form.Control
                     placeholder="Telefone"
                     value={phones}
-                    onChange={(e) => setPhones(e.target.value)}
+                    onChange={(e) =>
+                      setPhones(
+                        mask(unMask(e.target.value), [
+                          "(99) 9999-9999",
+                          "(99) 99999-9999",
+                        ])
+                      )
+                    }
                   />
                 </Form.Group>
                 <Form.Group
@@ -769,7 +833,14 @@ export default function Contatos(props) {
                   <Form.Control
                     placeholder="Telefone"
                     value={phoneEdit}
-                    onChange={(e) => setPhoneEdit(e.target.value)}
+                    onChange={(e) =>
+                      setPhoneEdit(
+                        mask(unMask(e.target.value), [
+                          "(99) 9999-9999",
+                          "(99) 99999-9999",
+                        ])
+                      )
+                    }
                     className="phone_with_ddd"
                   />
                 </Form.Group>
@@ -854,7 +925,9 @@ export default function Contatos(props) {
                         className="form-control"
                         placeholder="CEP"
                         value={zipcode}
-                        onChange={(e) => setZipcode(e.target.value)}
+                        onChange={(e) =>
+                          setZipcode(mask(e.target.value, ["99.999-999"]))
+                        }
                         required={true}
                       />
                       <div className="input-group-append">
@@ -997,42 +1070,3 @@ export default function Contatos(props) {
     </>
   );
 }
-
-/*
-
-<Table striped bordered hover>
-            <thead>
-              <tr>
-                <th>Telefone</th>
-                <th>Tipo</th>
-                <th>Ações</th>
-                <th>Ações</th>
-              </tr>
-            </thead>
-            <HeaderModal>
-              <tbody>
-                <tr>
-                  <td>
-                    <img
-                      src="https://pbs.twimg.com/profile_images/1042181136720453632/yzc4rno0_400x400.jpg"
-                      alt="Avatar"
-                    />
-                  </td>
-                  <td>{contato.name}</td>
-                  <td>{contato.main_email}</td>
-                  <td>
-                    <BtnAcao>
-                      <button>
-                        <MdCreate />
-                      </button>
-                      <button>
-                        <MdDelete />
-                      </button>
-                    </BtnAcao>
-                  </td>
-                </tr>
-              </tbody>
-            </HeaderModal>
-          </Table>
-
-*/
